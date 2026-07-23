@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K12 Plus — Competitor Pricing Log</title>
+<style>
+  :root{
+    --blue:#1C86E8; --navy:#0E2A4E; --ink:#14233B; --mut:#5B6678;
+    --line:#D7DEEA; --tint:#EAF3FD; --zebra:#F6F9FD; --yel:#FFF9E6; --grn:#E8F5EF;
+    --red:#C0392B; --green:#0E7C66;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1F5FB;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px;}
+  .wrap{max-width:1360px;margin:0 auto;padding:18px 20px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .mark{font-weight:800;letter-spacing:.5px;font-size:18px;color:var(--navy);
+    display:flex;align-items:center;gap:7px;}
+  .mark .dot{width:12px;height:12px;border-radius:3px;background:var(--blue);display:inline-block;
+    box-shadow:6px 0 0 var(--navy);margin-right:8px;}
+  .sub{color:var(--mut);font-size:12px;margin-top:2px;}
+  .save{font-size:11.5px;color:var(--green);background:var(--grn);border:1px solid #Bfe6d8;
+    padding:5px 10px;border-radius:20px;white-space:nowrap;}
+  .save.warn{color:#8a6d00;background:#FFF6D5;border-color:#EAD98A;}
+  .tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:0;}
+  .tab{padding:10px 18px;cursor:pointer;font-weight:600;color:var(--mut);border:2px solid transparent;
+    border-bottom:none;border-radius:8px 8px 0 0;font-size:13.5px;user-select:none;}
+  .tab.active{color:var(--navy);background:#fff;border-color:var(--line);border-bottom:2px solid #fff;
+    margin-bottom:-2px;box-shadow:0 -2px 0 var(--blue) inset;}
+  .panel{background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;
+    padding:16px 16px 20px;}
+  .panel.hidden{display:none;}
+  .intro{color:var(--mut);font-size:12px;line-height:1.5;margin:2px 0 14px;max-width:1180px;}
+  /* summary */
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .card{background:var(--tint);border:1px solid #CFE3FA;border-radius:10px;padding:10px 16px;min-width:150px;}
+  .card .k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;}
+  .card .v{font-size:22px;font-weight:800;color:var(--navy);margin-top:3px;}
+  .card .v.red{color:var(--red);}
+  table.sum{border-collapse:collapse;margin-bottom:14px;font-size:12.5px;}
+  table.sum th{background:var(--blue);color:#fff;font-weight:600;padding:7px 12px;text-align:right;font-size:11.5px;}
+  table.sum th:first-child{text-align:left;border-radius:8px 0 0 0;}
+  table.sum th:last-child{border-radius:0 8px 0 0;}
+  table.sum td{padding:6px 12px;text-align:right;border-bottom:1px solid var(--line);}
+  table.sum td:first-child{text-align:left;font-weight:700;color:var(--navy);}
+  table.sum tr:nth-child(even) td{background:var(--zebra);}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  button{font-family:inherit;font-size:12.5px;font-weight:600;border-radius:8px;border:1px solid var(--line);
+    background:#fff;color:var(--navy);padding:7px 13px;cursor:pointer;}
+  button:hover{border-color:var(--blue);}
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  button.primary:hover{background:#1670c9;}
+  button.ghost{color:var(--mut);}
+  button.danger:hover{border-color:var(--red);color:var(--red);}
+  .spacer{flex:1;}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;}
+  table.log{border-collapse:collapse;width:100%;font-size:12px;min-width:1180px;}
+  table.log th{position:sticky;top:0;background:var(--navy);color:#fff;font-weight:600;font-size:11px;
+    padding:8px 6px;text-align:left;white-space:nowrap;border-right:1px solid #24406a;}
+  table.log th.calc{background:#20395c;}
+  table.log td{border-bottom:1px solid var(--line);border-right:1px solid #EEF2F8;padding:2px;vertical-align:middle;}
+  table.log tr:nth-child(even) td{background:var(--zebra);}
+  table.log tr.example td{background:var(--grn);}
+  table.log input, table.log select{width:100%;border:1px solid transparent;background:transparent;
+    font-family:inherit;font-size:12px;color:var(--ink);padding:5px 6px;border-radius:5px;min-height:28px;}
+  table.log td.money input{background:var(--yel);}
+  table.log tr.example td.money input{background:#DCEEE4;}
+  table.log input:focus, table.log select:focus{outline:none;border-color:var(--blue);background:#fff;}
+  table.log td.calc{background:#F3F6FB !important;text-align:right;font-weight:700;color:var(--navy);
+    padding:5px 8px;white-space:nowrap;}
+  table.log td.calc.mult{color:var(--red);}
+  td.del{text-align:center;}
+  td.del button{border:none;background:transparent;color:#B9C2D0;font-size:15px;padding:2px 6px;cursor:pointer;}
+  td.del button:hover{color:var(--red);}
+  .foot{color:var(--mut);font-size:11.5px;line-height:1.5;margin-top:12px;max-width:1180px;}
+  .foot b{color:var(--ink);}
+  .drv{background:var(--tint);border:1px solid #CFE3FA;border-radius:8px;padding:8px 12px;font-size:11.5px;
+    color:var(--navy);line-height:1.5;margin-bottom:14px;}
+  input[type=file]{display:none;}
+  /* how-to-use collapsible panel */
+  details.help{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+  details.help>summary{list-style:none;cursor:pointer;padding:11px 16px;font-weight:700;color:var(--navy);
+    font-size:13px;display:flex;align-items:center;gap:9px;user-select:none;}
+  details.help>summary::-webkit-details-marker{display:none;}
+  details.help>summary .chev{color:var(--blue);transition:transform .18s;font-size:12px;}
+  details.help[open]>summary .chev{transform:rotate(90deg);}
+  details.help>summary .tag{font-weight:500;color:var(--mut);font-size:12px;}
+  .help-body{padding:2px 18px 16px;border-top:1px solid var(--line);font-size:12.8px;line-height:1.55;color:var(--ink);}
+  .help-body h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:16px 0 7px;}
+  .help-body ol,.help-body ul{margin:0 0 6px;padding-left:20px;}
+  .help-body li{margin-bottom:5px;}
+  .help-cols{display:flex;gap:14px;flex-wrap:wrap;}
+  .help-cols>div{flex:1;min-width:240px;}
+  .hnote{background:var(--tint);border:1px solid #CFE3FA;border-radius:8px;padding:10px 13px;margin:8px 0;font-size:12.3px;color:var(--navy);}
+  .hrule{background:var(--grn);border:1px solid #BFE6D8;border-left:4px solid var(--green);border-radius:8px;padding:10px 13px;margin:10px 0;font-size:12.3px;}
+  .hrule b{color:var(--green);}
+  .kbd{display:inline-block;background:var(--tint);border:1px solid #CFE3FA;border-radius:5px;padding:0 6px;font-size:11.5px;color:var(--navy);font-weight:600;}
+  .kbd.y{background:var(--yel);border-color:#EAD98A;color:#7a5c00;}
+  .help-body code{background:#F3F6FB;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11.8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div>
+        <div class="mark"><span class="dot"></span>K12&nbsp;PLUS</div>
+        <div class="sub">Competitor Pricing Log · Sales Tools</div>
+      </div>
+    </div>
+    <div id="saveStatus" class="save">Saved to this browser</div>
+  </header>
+
+  <details class="help">
+    <summary><span class="chev">▶</span> How to use this tool <span class="tag">— click to expand</span></summary>
+    <div class="help-body">
+      <p style="margin:12px 0 4px">Every time you learn what a competitor charged — a proposal a customer shares, a renewal quote, a lost-deal debrief, a public procurement record — log it here. A few real data points per market tell us where our pricing actually sits versus the field. One quote is a rumor; five is a pattern.</p>
+
+      <div class="help-cols">
+        <div>
+          <h4>Two tabs — pick the right one</h4>
+          <ul>
+            <li><b>Co-op &amp; SSA</b> — a co-op / shared-service deal priced across member districts. Keyed on <b>#&nbsp;districts</b> and <b>total SPED</b>.</li>
+            <li><b>District</b> — a single district buying one pillar. <b>One row per pillar</b> (a district weighing IEP and RTI gets two rows).</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Logging a quote</h4>
+          <ol>
+            <li>Click <span class="kbd">+ Add row</span> or type over an example.</li>
+            <li>Fill the <span class="kbd y">yellow</span> cells — competitor, their annual price, the student count covered.</li>
+            <li>Set <b>Pillar</b>, <b>Situation</b>, <b>Source</b> from the dropdowns.</li>
+            <li>The <span class="kbd">grey</span> columns ($/student, $/SPED, multiple) fill in automatically.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="hnote"><b>Which count goes in “Covered students” (District tab)?</b> Each pillar prices off a different group: <b>IEP</b> = special-ed (SPED) count · <b>RTI</b> = intervention students (≈ 20% of enrollment) · <b>504</b> = active 504 plans (≈ 3–4% of enrollment) · <b>LPAC</b> = emergent-bilingual / LEP students (≈ 12% of enrollment). Real number if you have it; the estimate is fine if not.</div>
+
+      <h4>Reading the summaries</h4>
+      <p style="margin:0 0 4px">The <b>Co-op tab</b> shows entries, average competitor $/SPED, and our average cost-plus multiple. The <b>District tab</b> breaks it down <b>by pillar</b> — RTI, 504, IEP, and LPAC are separate markets with separate price ceilings, so a per-pillar read is the whole point.</p>
+
+      <div class="hrule"><b>The one habit that matters:</b> this tool saves to <u>your own browser</u> only. To share with the team or keep a backup, click <span class="kbd">⭳ Export CSV</span> and drop the file in the shared location — that CSV is the team’s source of truth. <span class="kbd">⭱ Import CSV</span> pulls it back in (choose <b>Add</b> to merge or <b>Replace</b> to load a fresh master). Export after every logging session.</div>
+
+      <h4>For the HubSpot admin — embedding it</h4>
+      <p style="margin:0">One self-contained <code>.html</code> file, no dependencies. Either upload it to HubSpot <b>File Manager</b> and link the file URL from your sales tools, or add a <b>Custom HTML module</b> on a page and paste the file’s contents (or an <code>&lt;iframe&gt;</code> to the hosted URL). Because storage is per-browser, each rep sees their own local copy — the shared CSV stays the single source of truth. For one shared team pool, a HubSpot-native build (custom object on the deal) is the next step.</p>
+    </div>
+  </details>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="coop">Co-op &amp; SSA</div>
+    <div class="tab" data-tab="district">District — IEP · RTI · 504 · LPAC</div>
+  </div>
+
+  <!-- ================= CO-OP PANEL ================= -->
+  <div class="panel" id="panel-coop">
+    <div class="intro">Log every competitor price you learn on a co-op / SSA deal — from a proposal, a customer, a renewal, or a public procurement record.
+      Yellow cells are what you fill in; grey columns calculate automatically. Goal: 3–5 solid data points to know where the market really sits.</div>
+    <div class="cards" id="coopCards"></div>
+    <div class="toolbar">
+      <button class="primary" onclick="addRow('coop')">+ Add row</button>
+      <button onclick="exportCSV('coop')">⭳ Export CSV</button>
+      <button onclick="importCSV('coop')">⭱ Import CSV</button>
+      <div class="spacer"></div>
+      <button class="ghost danger" onclick="clearAll('coop')">Clear all rows</button>
+    </div>
+    <div class="tablewrap"><table class="log" id="table-coop"></table></div>
+    <div class="foot"><b>Grey columns calculate automatically:</b> Comp $/SPED, Our $/SPED, and Our × vs comp. Fill # Dist, SPED, and the competitor / our-price columns and they compute.
+      Everything you type saves to this browser instantly. <b>Export a CSV regularly</b> to back up or share with the team.</div>
+  </div>
+
+  <!-- ================= DISTRICT PANEL ================= -->
+  <div class="panel hidden" id="panel-district">
+    <div class="intro">Log every competitor price you learn selling direct to a district, one row per pillar. Each pillar prices off a different student count,
+      so enter the count that pillar covers in “Covered students.” Goal for year one: a few solid data points per pillar so you know where each market sits.</div>
+    <table class="sum" id="pillarSum">
+      <thead><tr><th>Pillar</th><th>Quotes logged</th><th>Avg competitor $/student</th><th>Avg our $/student</th><th>Avg our × comp</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="drv"><b>Covered-student driver by pillar:</b>&nbsp; IEP = special-ed (SPED) count &nbsp;·&nbsp; RTI = intervention students (≈ 20% of enrollment) &nbsp;·&nbsp;
+      504 = active 504 plans (≈ 3–4% of enrollment) &nbsp;·&nbsp; LPAC = emergent-bilingual / LEP students (≈ 12% of enrollment). Enter the real count if you have it, otherwise the estimate.</div>
+    <div class="toolbar">
+      <button class="primary" onclick="addRow('district')">+ Add row</button>
+      <button onclick="exportCSV('district')">⭳ Export CSV</button>
+      <button onclick="importCSV('district')">⭱ Import CSV</button>
+      <div class="spacer"></div>
+      <button class="ghost danger" onclick="clearAll('district')">Clear all rows</button>
+    </div>
+    <div class="tablewrap"><table class="log" id="table-district"></table></div>
+    <div class="foot"><b>Grey columns calculate automatically:</b> Comp $/student, Our $/student, and Our × vs comp. Fill Covered students, Competitor $/yr, and Our $/yr and they compute.
+      The green rows are examples showing how each pillar is logged — overwrite them with your first real quotes. Everything saves to this browser instantly; <b>export a CSV to back up or share.</b></div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".csv">
+
+<script>
+/* ---------- column specs ---------- */
+const SITUATIONS_COOP=["","Win","Loss","Renewal","Active deal","Competitive intel","Lost to competitor","Public record"];
+const SITUATIONS_DIST=["","Competitive intel","Active deal","Win","Loss","Renewal","Lost to competitor","Public record"];
+const SOURCES=["","Customer proposal","Customer verbal","Public procurement","Rep / field intel","Competitor website"];
+const PILLARS=["","IEP","RTI","504","LPAC"];
+
+const SPECS={
+  coop:[
+    {key:"date",label:"Date",type:"text",w:78},
+    {key:"name",label:"Co-op / District",type:"text",w:170},
+    {key:"ndist",label:"# Dist",type:"num",w:56},
+    {key:"sped",label:"SPED",type:"num",w:64},
+    {key:"situation",label:"Situation",type:"select",opts:SITUATIONS_COOP,w:130},
+    {key:"competitor",label:"Competitor",type:"text",w:150},
+    {key:"compYr",label:"Competitor $/yr",type:"money",w:110},
+    {key:"compPerSped",label:"Comp $/SPED",type:"calc",w:90,calc:r=>div(r.compYr,r.sped),fmt:"money"},
+    {key:"term",label:"Term / escalation",type:"text",w:130},
+    {key:"scope",label:"Scope / modules",type:"text",w:160},
+    {key:"todayUsd",label:"Our Today $",type:"money",w:100},
+    {key:"cpUsd",label:"Our Cost-plus $",type:"money",w:110},
+    {key:"ourPerSped",label:"Our $/SPED",type:"calc",w:88,calc:r=>div(r.cpUsd,r.sped),fmt:"money"},
+    {key:"mult",label:"Our × vs comp",type:"calc",w:88,calc:r=>div(r.cpUsd,r.compYr),fmt:"mult"},
+    {key:"source",label:"Source",type:"select",opts:SOURCES,w:140},
+    {key:"notes",label:"Notes",type:"text",w:240},
+  ],
+  district:[
+    {key:"date",label:"Date",type:"text",w:78},
+    {key:"district",label:"District",type:"text",w:150},
+    {key:"enroll",label:"Enroll",type:"num",w:64},
+    {key:"pillar",label:"Pillar",type:"select",opts:PILLARS,w:78},
+    {key:"covered",label:"Covered students",type:"num",w:80},
+    {key:"situation",label:"Situation",type:"select",opts:SITUATIONS_DIST,w:128},
+    {key:"competitor",label:"Competitor",type:"text",w:150},
+    {key:"compYr",label:"Competitor $/yr",type:"money",w:110},
+    {key:"compPerStu",label:"Comp $/student",type:"calc",w:95,calc:r=>div(r.compYr,r.covered),fmt:"money"},
+    {key:"term",label:"Term / escalation",type:"text",w:120},
+    {key:"scope",label:"Scope / notes",type:"text",w:160},
+    {key:"ourYr",label:"Our $/yr",type:"money",w:100},
+    {key:"ourPerStu",label:"Our $/student",type:"calc",w:92,calc:r=>div(r.ourYr,r.covered),fmt:"money"},
+    {key:"mult",label:"Our × vs comp",type:"calc",w:88,calc:r=>div(r.ourYr,r.compYr),fmt:"mult"},
+    {key:"source",label:"Source",type:"select",opts:SOURCES,w:140},
+    {key:"notes",label:"Notes",type:"text",w:240},
+  ]
+};
+
+/* ---------- seed data ---------- */
+const SEED={
+  coop:[
+    {date:"2024-05",name:"Small Schools Cooperative",ndist:"10",sped:"775",situation:"Competitive intel",
+     competitor:"SpedTrack (Euna)",compYr:"8523",term:"5 yr · ~8.5%/yr",scope:"IEP/SpEd System + Translation",
+     todayUsd:"59996",cpUsd:"42800",source:"Customer proposal",
+     notes:"Unique early-customer deal per SpedTrack — one of their first customers; not their standard price."}
+  ],
+  district:[
+    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"IEP",covered:"520",situation:"Competitive intel",
+     competitor:"‹competitor›",compYr:"78000",term:"3 yr · flat",scope:"IEP + evaluations",ourYr:"96000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
+    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"RTI",covered:"840",situation:"Competitive intel",
+     competitor:"‹competitor›",compYr:"22000",term:"1 yr",scope:"MTSS / RTI",ourYr:"28000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
+    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"504",covered:"150",situation:"Competitive intel",
+     competitor:"‹competitor›",compYr:"9000",term:"1 yr",scope:"504 plan management",ourYr:"12000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
+    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"LPAC",covered:"500",situation:"Competitive intel",
+     competitor:"‹competitor›",compYr:"14000",term:"1 yr",scope:"LPAC / EB documentation",ourYr:"18000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
+  ]
+};
+
+/* ---------- helpers ---------- */
+const KEYS={coop:"k12_coop_log_v2",district:"k12_district_log_v2"};
+let hasStorage=true;
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){hasStorage=false;return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){hasStorage=false;return false;}}
+function num(v){if(v===''||v==null)return null;const n=parseFloat(String(v).replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n;}
+function div(a,b){a=num(a);b=num(b);return (a!=null&&b!=null&&b!==0)?a/b:null;}
+function money(n){return n==null?"—":"$"+Math.round(n).toLocaleString();}
+function mult(n){return (n==null||!isFinite(n))?"—":n.toFixed(1)+"x";}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+let state={coop:[],district:[]};
+
+function load(){
+  ["coop","district"].forEach(t=>{
+    const raw=lsGet(KEYS[t]);
+    if(raw){try{state[t]=JSON.parse(raw);}catch(e){state[t]=SEED[t].slice();}}
+    else{state[t]=SEED[t].map(o=>Object.assign({},o));}
+  });
+  if(!hasStorage) setSave(true);
+}
+function save(t){
+  const ok=lsSet(KEYS[t],JSON.stringify(state[t]));
+  setSave(!ok);
+}
+function setSave(warn){
+  const el=document.getElementById('saveStatus');
+  if(warn){el.className="save warn";el.textContent="Preview mode — inputs won't persist here. Works when hosted in HubSpot.";}
+  else{el.className="save";el.textContent="Saved to this browser · "+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+}
+
+/* ---------- render ---------- */
+function isExample(r){return String(r.notes||"").indexOf("EXAMPLE ROW")===0;}
+function renderTable(t){
+  const spec=SPECS[t];const tbl=document.getElementById("table-"+t);
+  let html="<thead><tr>";
+  spec.forEach(c=>{html+=`<th class="${c.type==='calc'?'calc':''}" style="min-width:${c.w}px">${c.label.replace(/ /g,'&nbsp;')}</th>`;});
+  html+="<th style='min-width:30px'></th></tr></thead><tbody>";
+  state[t].forEach((r,i)=>{
+    html+=`<tr data-idx="${i}"${isExample(r)?' class="example"':''}>`;
+    spec.forEach(c=>{
+      if(c.type==="calc"){
+        html+=`<td class="calc ${c.key==='mult'?'mult':''}" data-calc="${c.key}"></td>`;
+      }else if(c.type==="select"){
+        let o=c.opts.map(v=>`<option${v===(r[c.key]||"")?" selected":""}>${esc(v)}</option>`).join("");
+        html+=`<td><select data-key="${c.key}">${o}</select></td>`;
+      }else{
+        const cls=c.type==="money"?"money":"";
+        const inm=(c.type==="num"||c.type==="money")?'inputmode="decimal"':'';
+        html+=`<td class="${cls}"><input data-key="${c.key}" ${inm} value="${esc(r[c.key])}"></td>`;
+      }
+    });
+    html+=`<td class="del"><button title="Delete row" onclick="delRow('${t}',${i})">✕</button></td>`;
+    html+="</tr>";
+  });
+  html+="</tbody>";
+  tbl.innerHTML=html;
+  refreshCalc(t);
+  if(t==="coop")renderCoopCards();else renderPillarSum();
+}
+function refreshCalc(t){
+  const spec=SPECS[t];const tbl=document.getElementById("table-"+t);
+  tbl.querySelectorAll("tbody tr").forEach(tr=>{
+    const r=state[t][+tr.dataset.idx];
+    spec.forEach(c=>{
+      if(c.type==="calc"){
+        const cell=tr.querySelector(`[data-calc="${c.key}"]`);
+        const val=c.calc(r);
+        cell.textContent=c.fmt==="mult"?mult(val):money(val);
+      }
+    });
+  });
+}
+
+/* ---------- summaries ---------- */
+function renderCoopCards(){
+  const rows=state.coop;
+  const entries=rows.filter(r=>String(r.name||"").trim()!=="").length;
+  const cps=rows.map(r=>div(r.compYr,r.sped)).filter(v=>v!=null);
+  const ml=rows.map(r=>div(r.cpUsd,r.compYr)).filter(v=>v!=null&&isFinite(v));
+  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  document.getElementById("coopCards").innerHTML=`
+    <div class="card"><div class="k">Entries</div><div class="v">${entries}</div></div>
+    <div class="card"><div class="k">Avg competitor $/SPED</div><div class="v">${money(avg(cps))}</div></div>
+    <div class="card"><div class="k">Avg our cost-plus × vs competitor</div><div class="v red">${mult(avg(ml))}</div></div>`;
+}
+function renderPillarSum(){
+  const rows=state.district;const body=document.querySelector("#pillarSum tbody");
+  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  body.innerHTML=["IEP","RTI","504","LPAC"].map(p=>{
+    const rs=rows.filter(r=>(r.pillar||"")===p && num(r.compYr)!=null);
+    const cps=rs.map(r=>div(r.compYr,r.covered)).filter(v=>v!=null);
+    const ops=rs.map(r=>div(r.ourYr,r.covered)).filter(v=>v!=null);
+    const ml=rs.map(r=>div(r.ourYr,r.compYr)).filter(v=>v!=null&&isFinite(v));
+    return `<tr><td>${p}</td><td>${rs.length}</td><td>${money(avg(cps))}</td><td>${money(avg(ops))}</td><td style="color:var(--red);font-weight:700">${mult(avg(ml))}</td></tr>`;
+  }).join("");
+}
+
+/* ---------- editing ---------- */
+function onInput(t,e){
+  const key=e.target.dataset.key;if(!key)return;
+  const tr=e.target.closest("tr");const idx=+tr.dataset.idx;
+  state[t][idx][key]=e.target.value;
+  // recompute this row's calc cells + summary
+  const r=state[t][idx];
+  SPECS[t].forEach(c=>{if(c.type==="calc"){const cell=tr.querySelector(`[data-calc="${c.key}"]`);const v=c.calc(r);cell.textContent=c.fmt==="mult"?mult(v):money(v);}});
+  if(isExample(r))tr.classList.add("example");else tr.classList.remove("example");
+  if(t==="coop")renderCoopCards();else renderPillarSum();
+  save(t);
+}
+function addRow(t){state[t].push({});renderTable(t);save(t);
+  const tb=document.getElementById("table-"+t).querySelector("tbody");tb.lastElementChild.querySelector("input,select").focus();}
+function delRow(t,i){state[t].splice(i,1);renderTable(t);save(t);}
+function clearAll(t){
+  if(!confirm("Clear all rows on this tab? Export a CSV first if you want a backup. This can't be undone."))return;
+  state[t]=[];renderTable(t);save(t);
+}
+
+/* ---------- CSV ---------- */
+function csvEscape(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportCSV(t){
+  const spec=SPECS[t];
+  const cols=spec; // include calc columns for readability
+  const head=cols.map(c=>c.label).join(",");
+  const lines=state[t].map(r=>cols.map(c=>{
+    if(c.type==="calc"){const v=c.calc(r);return csvEscape(c.fmt==="mult"?(v==null?"":v.toFixed(2)):(v==null?"":Math.round(v)));}
+    return csvEscape(r[c.key]);
+  }).join(","));
+  const csv=[head].concat(lines).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=(t==="coop"?"Coop_SSA":"District")+"_Competitor_Log.csv";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+let importTarget=null;
+function importCSV(t){importTarget=t;document.getElementById("fileInput").click();}
+document.getElementById("fileInput").addEventListener("change",function(e){
+  const f=e.target.files[0];if(!f)return;const t=importTarget;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const rows=parseCSV(ev.target.result);
+      if(!rows.length){alert("No rows found in that file.");return;}
+      const spec=SPECS[t];const editable=spec.filter(c=>c.type!=="calc");
+      const header=rows[0].map(h=>h.trim().toLowerCase());
+      const map={};editable.forEach(c=>{const i=header.indexOf(c.label.toLowerCase());if(i>=0)map[c.key]=i;});
+      if(Object.keys(map).length===0){alert("Couldn't match any columns. Make sure the header row matches the tool's column names (a CSV exported from this tool will match).");return;}
+      const parsed=[];
+      for(let i=1;i<rows.length;i++){
+        const row=rows[i];if(row.every(c=>String(c).trim()===""))continue;
+        const obj={};editable.forEach(c=>{if(map[c.key]!=null)obj[c.key]=row[map[c.key]]!=null?row[map[c.key]]:"";});
+        parsed.push(obj);
+      }
+      if(!parsed.length){alert("No data rows found.");return;}
+      const mode=confirm("Import "+parsed.length+" row(s).\n\nOK = ADD to the current rows.\nCancel = REPLACE all current rows.");
+      state[t]=mode?state[t].concat(parsed):parsed;
+      renderTable(t);save(t);
+    }catch(err){alert("Could not read that CSV: "+err.message);}
+    document.getElementById("fileInput").value="";
+  };
+  reader.readAsText(f);
+});
+function parseCSV(text){
+  const rows=[];let cur=[],val="",i=0,q=false;text=text.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  while(i<text.length){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){val+='"';i++;}else q=false;}else val+=ch;}
+    else{if(ch==='"')q=true;else if(ch===','){cur.push(val);val="";}
+      else if(ch==='\n'){cur.push(val);rows.push(cur);cur=[];val="";}
+      else val+=ch;}
+    i++;}
+  if(val!==""||cur.length){cur.push(val);rows.push(cur);}
+  return rows.filter(r=>r.length>1||String(r[0]).trim()!=="");
+}
+
+/* ---------- tabs & init ---------- */
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    tab.classList.add("active");
+    const t=tab.dataset.tab;
+    document.getElementById("panel-coop").classList.toggle("hidden",t!=="coop");
+    document.getElementById("panel-district").classList.toggle("hidden",t!=="district");
+  });
+});
+["coop","district"].forEach(t=>{
+  const tbl=document.getElementById("table-"+t);
+  tbl.addEventListener("input",e=>onInput(t,e));
+  tbl.addEventListener("change",e=>onInput(t,e));
+});
+load();renderTable("coop");renderTable("district");
+if(hasStorage)setSave(false);
+</script>
+</body>
+</html>
