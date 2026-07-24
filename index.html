@@ -277,6 +277,7 @@ function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){hasStora
 function num(v){if(v===''||v==null)return null;const n=parseFloat(String(v).replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n;}
 function div(a,b){a=num(a);b=num(b);return (a!=null&&b!=null&&b!==0)?a/b:null;}
 function money(n){return n==null?"—":"$"+Math.round(n).toLocaleString();}
+function moneyInput(v){const n=num(v);return n==null?"":"$"+n.toLocaleString(undefined,{maximumFractionDigits:0});}
 function mult(n){return (n==null||!isFinite(n))?"—":n.toFixed(1)+"x";}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
@@ -318,7 +319,9 @@ function renderTable(t){
       }else{
         const cls=c.type==="money"?"money":"";
         const inm=(c.type==="num"||c.type==="money")?'inputmode="decimal"':'';
-        html+=`<td class="${cls}"><input data-key="${c.key}" ${inm} value="${esc(r[c.key])}"></td>`;
+        const dm=c.type==="money"?' data-money="1"':'';
+        const dval=c.type==="money"?esc(moneyInput(r[c.key])):esc(r[c.key]);
+        html+=`<td class="${cls}"><input data-key="${c.key}"${dm} ${inm} value="${dval}"></td>`;
       }
     });
     html+=`<td class="del"><button title="Delete row" onclick="delRow('${t}',${i})">✕</button></td>`;
@@ -371,7 +374,9 @@ function renderPillarSum(){
 function onInput(t,e){
   const key=e.target.dataset.key;if(!key)return;
   const tr=e.target.closest("tr");const idx=+tr.dataset.idx;
-  state[t][idx][key]=e.target.value;
+  let v=e.target.value;
+  if(e.target.dataset.money) v=v.replace(/[$,\s]/g,"");  // store raw number, not the formatted display
+  state[t][idx][key]=v;
   // recompute this row's calc cells + summary
   const r=state[t][idx];
   SPECS[t].forEach(c=>{if(c.type==="calc"){const cell=tr.querySelector(`[data-calc="${c.key}"]`);const v=c.calc(r);cell.textContent=c.fmt==="mult"?mult(v):money(v);}});
@@ -457,6 +462,16 @@ document.querySelectorAll(".tab").forEach(tab=>{
   const tbl=document.getElementById("table-"+t);
   tbl.addEventListener("input",e=>onInput(t,e));
   tbl.addEventListener("change",e=>onInput(t,e));
+  // money cells: show a plain number to edit on focus, reformat to $ on blur
+  tbl.addEventListener("focusin",e=>{
+    if(!e.target.dataset||!e.target.dataset.money)return;
+    const raw=num(state[t][+e.target.closest("tr").dataset.idx][e.target.dataset.key]);
+    e.target.value=raw==null?"":raw;
+  });
+  tbl.addEventListener("focusout",e=>{
+    if(!e.target.dataset||!e.target.dataset.money)return;
+    e.target.value=moneyInput(state[t][+e.target.closest("tr").dataset.idx][e.target.dataset.key]);
+  });
 });
 load();renderTable("coop");renderTable("district");
 if(hasStorage)setSave(false);
