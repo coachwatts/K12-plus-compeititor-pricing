@@ -190,7 +190,7 @@
     </div>
     <div class="tablewrap"><table class="log" id="table-district"></table></div>
     <div class="foot"><b>Grey columns calculate automatically:</b> Comp $/student, Our $/student, and Our × vs comp. Fill Covered students, Competitor $/yr, and Our $/yr and they compute.
-      The green rows are examples showing how each pillar is logged — overwrite them with your first real quotes. Everything saves to this browser instantly; <b>export a CSV to back up or share.</b></div>
+      Everything saves to this browser instantly; <b>export a CSV to back up or share.</b></div>
   </div>
 </div>
 
@@ -251,19 +251,26 @@ const SEED={
      notes:"Unique early-customer deal per SpedTrack — one of their first customers; not their standard price."}
   ],
   district:[
-    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"IEP",covered:"520",situation:"Competitive intel",
-     competitor:"‹competitor›",compYr:"78000",term:"3 yr · flat",scope:"IEP + evaluations",ourYr:"96000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
-    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"RTI",covered:"840",situation:"Competitive intel",
-     competitor:"‹competitor›",compYr:"22000",term:"1 yr",scope:"MTSS / RTI",ourYr:"28000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
-    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"504",covered:"150",situation:"Competitive intel",
-     competitor:"‹competitor›",compYr:"9000",term:"1 yr",scope:"504 plan management",ourYr:"12000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
-    {date:"2026-07",district:"‹example district›",enroll:"4200",pillar:"LPAC",covered:"500",situation:"Competitive intel",
-     competitor:"‹competitor›",compYr:"14000",term:"1 yr",scope:"LPAC / EB documentation",ourYr:"18000",source:"Rep / field intel",notes:"EXAMPLE ROW — overwrite with a real quote"},
+    {date:"2025-06",district:"Sonora ISD",enroll:"643",pillar:"IEP",covered:"111",situation:"Competitive intel",
+     competitor:"SpedTrack (Euna)",compYr:"1760",term:"1 yr · expires 9/9/25",scope:"Special Education (IEP & Evaluation)",ourYr:"7859",source:"Customer proposal",
+     notes:"Sonora is a Small Schools Co-op member. Core SpEd module only; SpedTrack also quoted à-la-carte add-ons — Progress Monitoring $1,000, Services Tracking $1,000, SIS Integration $275, Translation $275, Workflow $350/yr — plus $500 one-time implementation. Full SpedTrack quote (incl. 504 + MTSS + add-ons) = $6,100/yr + $500 impl."},
+    {date:"2025-06",district:"Sonora ISD",enroll:"643",pillar:"504",covered:"27",situation:"Competitive intel",
+     competitor:"SpedTrack (Euna)",compYr:"440",term:"1 yr · expires 9/9/25",scope:"Section 504",ourYr:"2564",source:"Customer proposal",
+     notes:"Part of the same SpedTrack quote to Sonora ISD."},
+    {date:"2025-06",district:"Sonora ISD",enroll:"643",pillar:"RTI",covered:"129",situation:"Competitive intel",
+     competitor:"SpedTrack (Euna)",compYr:"1000",term:"1 yr · expires 9/9/25",scope:"MTSS",ourYr:"2501",source:"Customer proposal",
+     notes:"MTSS module. Covered count = est. 20% of enrollment (no actual RTI count). Progress Monitoring ($1,000) also relates to MTSS if bundled."},
+    {date:"2025-06",district:"Wall ISD",enroll:"1313",pillar:"IEP",covered:"175",situation:"Competitive intel",
+     competitor:"Embrace (Embrace Education)",compYr:"4400",term:"1 yr · expires 9/3/25",scope:"EmbraceSE — Texas Mgmt Software (ARD/IEP)",ourYr:"10250",source:"Customer proposal",
+     notes:"Wall is a Small Schools Co-op member. + SFTP/SIS interface $500/yr; + $3,000 one-time implementation + $1,000 IEP webinar training. Full Embrace quote (IEP + 504) = $5,868/yr + $4,500 one-time."},
+    {date:"2025-06",district:"Wall ISD",enroll:"1313",pillar:"504",covered:"125",situation:"Competitive intel",
+     competitor:"Embrace (Embrace Education)",compYr:"968",term:"1 yr · expires 9/3/25",scope:"Embrace504",ourYr:"3844",source:"Customer proposal",
+     notes:"Part of the same Embrace quote to Wall ISD. + $500 one-time 504 webinar training."},
   ]
 };
 
 /* ---------- helpers ---------- */
-const KEYS={coop:"k12_coop_log_v2",district:"k12_district_log_v2"};
+const KEYS={coop:"k12_coop_log_v2",district:"k12_district_log_v3"};
 let hasStorage=true;
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){hasStorage=false;return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){hasStorage=false;return false;}}
